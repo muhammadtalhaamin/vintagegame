@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Code, Play, Send, Wand2 } from 'lucide-react';
+import { Code, Play, Wand2 } from 'lucide-react';
 import axios from 'axios';
 
 const TetrisGame = () => {
@@ -95,9 +95,9 @@ const TetrisGame = () => {
   };
 
   // Initial game setup
-useEffect(() => {
-  // Set initial code for editing
-  setEditableCode(`
+  useEffect(() => {
+    // Set initial code for editing
+    setEditableCode(`
 const initGame = () => {
   // Initialize game state
   const newGrid = Array(gridHeight).fill().map(() => Array(gridWidth).fill(0));
@@ -115,8 +115,8 @@ const initGame = () => {
 // You can customize game initialization logic here
 `);
 
-  initGame();
-}, []);
+    initGame();
+  }, []);
 
   // Game logic useEffect
   useEffect(() => {
@@ -294,47 +294,45 @@ const initGame = () => {
   };
 
   // Apply code changes
-const applyCodeChanges = () => {
-  try {
-    // Create a safe execution context with necessary game state and functions
-    const safeContext = {
-      gridHeight,
-      gridWidth,
-      setGrid,
-      setCurrentPiece,
-      setNextPiece,
-      setScore,
-      setGameOver,
-      getRandomPiece,
-      tetrominos
-    };
+  const applyCodeChanges = () => {
+    try {
+      // Create a safe execution context with necessary game state and functions
+      const safeContext = {
+        gridHeight,
+        gridWidth,
+        setGrid,
+        setCurrentPiece,
+        setNextPiece,
+        setScore,
+        setGameOver,
+        getRandomPiece,
+        tetrominos
+      };
 
-    // Dynamically evaluate the code
-    const initFunction = new Function(
-      ...Object.keys(safeContext), 
-      `return function() { 
-        ${editableCode}
-        return initGame;
-      }`
-    )(...Object.values(safeContext))();
+      // Dynamically evaluate the code
+      const initFunction = new Function(
+        ...Object.keys(safeContext), 
+        `return function() { 
+          ${editableCode}
+          return initGame;
+        }`
+      )(...Object.values(safeContext))();
 
-    // Override default initialization with custom function
-    if (typeof initFunction === 'function') {
-      initFunction();
-    } else {
+      // Override default initialization with custom function
+      if (typeof initFunction === 'function') {
+        initFunction();
+      } else {
+        initGame();
+      }
+
+      alert('Code changes applied successfully!');
+    } catch (error) {
+      console.error('Error applying code changes:', error);
+      alert('Failed to apply code changes. Please check your code.');
+      // Fallback to default initialization
       initGame();
     }
-
-    alert('Code changes applied successfully!');
-  } catch (error) {
-    console.error('Error applying code changes:', error);
-    alert('Failed to apply code changes. Please check your code.');
-    // Fallback to default initialization
-    initGame();
-  }
-};
-
-  
+  };
 
   const getAiSuggestion = async () => {
     if (!aiPrompt.trim()) return;
@@ -398,35 +396,35 @@ const applyCodeChanges = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800 flex items-center justify-center gap-4">
-          <Play className="text-gray-600" />
+        <h1 className="text-4xl font-bold text-center mb-8 text-white flex items-center justify-center gap-4">
+          <Play className="text-green-500" />
           Tetris Game
-          <Code className="text-gray-600" />
+          <Code className="text-blue-500" />
         </h1>
 
         <div className="flex space-x-6">
           {/* Game Container */}
-          <div className={`${showCode ? 'w-1/2' : 'w-full'} bg-white shadow-xl rounded-lg p-6 transition-all duration-300`}>
+          <div className={`${showCode ? 'w-1/2' : 'w-full'} bg-gray-800 shadow-xl rounded-lg p-6 transition-all duration-300`}>
             <div className="flex flex-col items-center">
               <canvas 
                 ref={canvasRef} 
                 width={gridWidth * gridSize} 
                 height={gridHeight * gridSize} 
-                className="border-4 border-gray-500 rounded-md shadow-md"
+                className="border-4 border-gray-700 rounded-md shadow-md"
               ></canvas>
               
               <div className="mt-4 flex items-center space-x-4">
                 <p className="text-xl font-semibold">Score: 
-                  <span className="text-gray-600 ml-2">{score}</span>
+                  <span className="text-gray-400 ml-2">{score}</span>
                 </p>
                 
                 {gameOver && (
                   <Button 
                     onClick={initGame}
                     variant="outline"
-                    className="bg-black text-white hover:bg-gray-300"
+                    className="bg-gray-600 text-white hover:bg-gray-700"
                   >
                     Play Again
                   </Button>
@@ -435,7 +433,7 @@ const applyCodeChanges = () => {
                 <Button 
                   onClick={toggleCodeView} 
                   variant="outline"
-                  className="ml-4"
+                  className="ml-4 bg-gray-600 text-white hover:bg-gray-700"
                 >
                   {showCode ? 'Hide Code' : 'Show Code'}
                 </Button>
@@ -445,11 +443,11 @@ const applyCodeChanges = () => {
 
           {/* Code Editor Container */}
           {showCode && (
-            <div className="w-1/2 bg-white shadow-xl rounded-lg p-6">
-              <Card className="w-full h-full">
+            <div className="w-1/2 bg-gray-800 shadow-xl rounded-lg p-6">
+              <Card className="w-full h-full bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Code className="text-black" />
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Code className="text-blue-500" />
                     Game Code
                   </CardTitle>
                 </CardHeader>
@@ -457,14 +455,14 @@ const applyCodeChanges = () => {
                   <Textarea
                     value={editableCode}
                     onChange={handleCodeChange}
-                    className="w-full h-[350px] font-mono text-sm bg-gray-50 border-2 border-blue-100"
+                    className="w-full h-[350px] font-mono text-sm bg-gray-700 text-white border-2 border-gray-600"
                     placeholder="Edit your game code here"
                   />
                   
                   {/* Apply Code Changes Button */}
                   <Button 
                     onClick={applyCodeChanges}
-                    className="mt-4 w-full"
+                    className="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white"
                   >
                     Apply Code Changes
                   </Button>
@@ -475,12 +473,12 @@ const applyCodeChanges = () => {
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                       placeholder="Ask AI to modify the game code"
-                      className="flex-grow"
+                      className="flex-grow bg-gray-700 text-white border-2 border-gray-600"
                     />
                     <Button 
                       onClick={getAiSuggestion}
                       disabled={isLoading}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white"
                     >
                       {isLoading ? 'Generating...' : (
                         <>

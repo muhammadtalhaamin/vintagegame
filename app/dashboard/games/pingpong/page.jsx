@@ -122,7 +122,7 @@ const initGame = () => {
 
       // Draw scores
       ctx.fillStyle = 'white';
-      ctx.font = '30px Arial';
+      ctx.font = '30px Press Start 2P';
       ctx.fillText(gameState.score1.toString(), 100, 50);
       ctx.fillText(gameState.score2.toString(), CANVAS_WIDTH - 100, 50);
     };
@@ -208,6 +208,11 @@ const initGame = () => {
   // Handle user input for moving player paddle
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Prevent the default behavior of scrolling the page
+      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+      }
+
       setGameState(prev => {
         switch (e.key) {
           case 'ArrowUp':
@@ -240,7 +245,8 @@ const initGame = () => {
     try {
       // Create a safe execution context with necessary game state and functions
       const safeContext = {
-        setGameState
+        setGameState,
+        defaultInitGame
       };
 
       // Dynamically evaluate the code
@@ -267,51 +273,6 @@ const initGame = () => {
       defaultInitGame();
     }
   };
-
-  // Get AI suggestion
-  // const getAiSuggestion = async () => {
-  //   if (!aiPrompt.trim()) return;
-  
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await axios.post('/api/pingpong', {
-  //       prompt: `Modify the initGame function to: ${aiPrompt}
-  
-  //       Provide ONLY the function body. Do not include function declaration, code blocks, or any markdown. 
-  //       Use the following parameters if needed: setGameState.
-        
-  //       Example output format (no code fences or extra text):
-  //       const defaultGameState = {
-  //         paddle1Y: 200,
-  //         paddle2Y: 200,
-  //         ballX: 300,
-  //         ballY: 200,
-  //         ballSpeedX: 5,
-  //         ballSpeedY: 5,
-  //         score1: 0,
-  //         score2: 0,
-  //         difficulty: 0.7
-  //       };
-  //       setGameState(defaultGameState);`,
-  //       model: 'gpt-4o'
-  //     });
-  
-  //     const suggestion = response.data.suggestion;
-      
-  //     // Replace the entire editableCode with a new implementation
-  //     setEditableCode(`const initGame = () => {
-  //   ${suggestion.trim()}
-  // };`);
-  
-  //     setIsLoading(false);
-  //     alert('AI suggestion applied. Apply changes to test.');
-  //   } catch (error) {
-  //     console.error('Error getting AI suggestion:', error);
-  //     alert('Failed to get AI suggestion. Please try again.');
-  //     setIsLoading(false);
-  //   }
-  // };
-
 
   // AI Suggestion method with improved error handling
   const getAiSuggestion = async () => {
@@ -360,34 +321,34 @@ const initGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800 flex items-center justify-center gap-4">
-          <Play className="text-gray-600" />
+        <h1 className="text-4xl font-bold text-center mb-8 text-white flex items-center justify-center gap-4">
+          <Play className="text-green-500" />
           Ping Pong Game (Player vs AI)
-          <Code className="text-gray-600" />
+          <Code className="text-blue-500" />
         </h1>
 
         <div className="flex space-x-6">
           {/* Game Container */}
-          <div className={`${showCode ? 'w-1/2' : 'w-full'} bg-white shadow-xl rounded-lg p-6 transition-all duration-300`}>
+          <div className={`${showCode ? 'w-1/2' : 'w-full'} bg-gray-800 shadow-xl rounded-lg p-6 transition-all duration-300`}>
             <div className="flex flex-col items-center">
               <canvas 
                 ref={canvasRef} 
                 width={CANVAS_WIDTH} 
                 height={CANVAS_HEIGHT} 
-                className="border-4 border-gray-500 rounded-md shadow-md bg-black"
+                className="border-4 border-gray-700 rounded-md shadow-md bg-gray-900"
               ></canvas>
               
               <div className="mt-4 flex items-center space-x-4">
                 <p className="text-xl font-semibold">Scores: 
-                  <span className="text-gray-600 ml-2">{gameState.score1} - {gameState.score2}</span>
+                  <span className="text-gray-400 ml-2">{gameState.score1} - {gameState.score2}</span>
                 </p>
 
                 <Button 
                   onClick={defaultInitGame}
                   variant="outline"
-                  className="bg-black text-white hover:bg-gray-300"
+                  className="bg-gray-600 text-white hover:bg-gray-700"
                 >
                   Restart Game
                 </Button>
@@ -395,7 +356,7 @@ const initGame = () => {
                 <Button 
                   onClick={toggleCodeView} 
                   variant="outline"
-                  className="ml-4"
+                  className="ml-4 bg-gray-600 text-white hover:bg-gray-700"
                 >
                   {showCode ? 'Hide Code' : 'Show Code'}
                 </Button>
@@ -405,11 +366,11 @@ const initGame = () => {
 
           {/* Code Editor Container */}
           {showCode && (
-            <div className="w-1/2 bg-white shadow-xl rounded-lg p-6">
-              <Card className="w-full h-full">
+            <div className="w-1/2 bg-gray-800 shadow-xl rounded-lg p-6">
+              <Card className="w-full h-full bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Code className="text-blue-600" />
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Code className="text-blue-500" />
                     Game Code
                   </CardTitle>
                 </CardHeader>
@@ -417,14 +378,14 @@ const initGame = () => {
                   <Textarea
                     value={editableCode}
                     onChange={(e) => setEditableCode(e.target.value)}
-                    className="w-full h-[350px] font-mono text-sm bg-gray-50 border-2 border-blue-100"
+                    className="w-full h-[350px] font-mono text-sm bg-gray-700 text-white border-2 border-gray-600"
                     placeholder="Edit your game code here"
                   />
                   
                   {/* Apply Code Changes Button */}
                   <Button 
                     onClick={applyCodeChanges}
-                    className="mt-4 w-full"
+                    className="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white"
                   >
                     Apply Code Changes
                   </Button>
@@ -435,12 +396,12 @@ const initGame = () => {
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                       placeholder="Ask AI to modify the game code"
-                      className="flex-grow"
+                      className="flex-grow bg-gray-700 text-white border-2 border-gray-600"
                     />
                     <Button 
                       onClick={getAiSuggestion}
                       disabled={isLoading}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white"
                     >
                       {isLoading ? 'Generating...' : (
                         <>

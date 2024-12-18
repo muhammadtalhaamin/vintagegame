@@ -8,36 +8,34 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Code, Play, Wand2, Star, Edit } from 'lucide-react';
 
-export default function NewGamePage() {
+export default function VintageGameGeneratorPage() {
   const [gameRequest, setGameRequest] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [gameComponent, setGameComponent] = useState(null);
   const [error, setError] = useState(null);
-  const [isGameGenerated, setIsGameGenerated] = useState(false);
 
-  const generateGameCode = async () => {
+  const generateGame = async () => {
     // Reset previous state
     setError(null);
     setGameComponent(null);
     setGeneratedCode('');
-    setIsGameGenerated(false);
 
     // Validate input
     if (!gameRequest.trim()) {
-      setError('Please provide a game description');
+      setError('Please describe the vintage black and white game you want to create');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Make API call to generate game
-      const response = await axios.post('/api/new', { prompt: gameRequest }, {
+      const response = await axios.post('/api/new', { 
+        prompt: `Create a vintage black and white game: ${gameRequest}`
+      }, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        timeout: 60000
+        timeout: 90000
       });
 
       // Validate response
@@ -46,170 +44,166 @@ export default function NewGamePage() {
       }
 
       const generatedCodeResponse = response.data.code;
-      console.log('Raw generated code:', generatedCodeResponse);
-
-      // Create a more aggressive sanitization function
-      const sanitizeCode = (code) => {
-        // Remove all import statements
-        code = code.replace(/import\s+.*?from\s*['"].*?['"];?/g, '');
-        
-        // Remove export keywords
-        code = code.replace(/export\s+(default\s+)?/g, '');
-        
-        // Wrap the code in a function declaration if not already
-        if (!code.includes('function GameComponent')) {
-          code = `function GameComponent() { 
-            ${code} 
-          }`;
-        }
-        
-        return code;
-      };
-
-      // Sanitize the code
-      const sanitizedCode = sanitizeCode(generatedCodeResponse);
-      console.log('Sanitized code:', sanitizedCode);
-
-      setGeneratedCode(sanitizedCode);
-      setIsGameGenerated(true);
+      setGeneratedCode(generatedCodeResponse);
+      startGame(generatedCodeResponse);
     } catch (error) {
-      console.error('Full error:', error);
-      
-      let errorMessage = 'Failed to generate game';
-      
-      // Detailed error handling
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          errorMessage = `Server error: ${error.response.status} - ${error.response.data?.error || 'Unknown server error'}`;
-        } else if (error.request) {
-          errorMessage = 'No response received from server';
-        } else {
-          errorMessage = `Request setup error: ${error.message}`;
-        }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      setError(errorMessage);
+      console.error('Game generation error:', error);
+      setError(error.response?.data?.error || 'Failed to generate game');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const startGame = () => {
+  const startGame = (code) => {
     try {
-      // Use Function constructor with explicit React parameter
-      const createComponent = new Function('React', `
-        return (function() {
-          try {
-            ${generatedCode}
-            
-            // Ensure GameComponent is a valid React component
-            if (typeof GameComponent !== 'function') {
-              throw new Error('GameComponent is not a valid React component');
-            }
-            
-            return GameComponent;
-          } catch (error) {
-            console.error('Component creation error:', error);
-            throw error;
-          }
-        })();
-      `);
+      // Create a more flexible evaluation context
+      const gameEvalContext = {
+        React: React,
+        useState: React.useState,
+        useEffect: React.useEffect,
+        console: console
+      };
 
-      const GameComponent = createComponent(React);
-
-      // Wrap in error boundary
-      const SafeGameComponent = () => (
-        <ErrorBoundary>
-          <GameComponent />
-        </ErrorBoundary>
+      // Create a function to evaluate the game component
+      const createGameComponent = new Function(
+        ...Object.keys(gameEvalContext), 
+        `
+        try {
+          ${code}
+          return GameComponent;
+        } catch (error) {
+          console.error('Component creation error:', error);
+          throw error;
+        }
+      `
       );
 
-      setGameComponent(<SafeGameComponent />);
+      // Execute the function with the context
+      const GeneratedGameComponent = createGameComponent(...Object.values(gameEvalContext));
+
+      // Validate the component
+      if (typeof GeneratedGameComponent !== 'function') {
+        throw new Error('Invalid game component generated');
+      }
+
+      // Create a wrapper component with error handling
+      const GameWrapper = () => {
+        try {
+          return (
+            <div className="p-4 bg-gray-100 rounded-lg shadow-inner">
+              <GeneratedGameComponent />
+            </div>
+          );
+        } catch (error) {
+          console.error('Game runtime error:', error);
+          return (
+            <div className="text-red-500 p-4 text-center">
+              <h3 className="font-bold mb-2">Game Error</h3>
+              <p>{error.message}</p>
+            </div>
+          );
+        }
+      };
+
+      setGameComponent(<GameWrapper />);
+      setError(null);
     } catch (error) {
-      console.error('Error starting game:', error);
-      setError('Failed to start the game. Please check the generated code.');
+      console.error('Game initialization error:', error);
+      setError(error.message || 'Failed to start the game');
+      setGameComponent(null);
     }
   };
 
+  const copyCode = () => {
+    navigator.clipboard.writeText(generatedCode)
+      .then(() => {
+        alert('Game code copied to clipboard');
+      })
+      .catch((error) => {
+        console.error('Failed to copy code:', error);
+      });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800 flex items-center justify-center gap-4">
-          <Play className="text-green-600" />
-          Game Generator
-          <Code className="text-blue-600" />
+        <h1 className="text-4xl font-bold text-center mb-8 text-white flex items-center justify-center gap-4">
+          <Play className="text-green-500" />
+          Vintage Game Generator
+          <Code className="text-blue-500" />
         </h1>
 
-        <div className="flex space-x-6">
+        <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           {/* Game Request Input */}
-          <div className="w-1/2 bg-white shadow-xl rounded-lg p-6">
-            <Card className="w-full h-full">
+          <div className="w-full md:w-1/2 bg-gray-800 shadow-xl rounded-lg p-6">
+            <Card className="w-full h-full bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wand2 className="text-blue-600" />
-                  Generate Game
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Wand2 className="text-blue-500" />
+                  Generate Vintage Game
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
                   value={gameRequest}
                   onChange={(e) => setGameRequest(e.target.value)}
-                  className="w-full h-[350px] font-mono text-sm bg-gray-50 border-2 border-blue-100"
-                  placeholder="Describe the game you want to create (e.g., 'A simple tic-tac-toe game' or 'Memory card matching game')"
+                  className="w-full h-[350px] font-mono text-sm bg-gray-700 text-white border-2 border-gray-600"
+                  placeholder="Describe a vintage black and white game (e.g., 'tic-tac-toe', 'Space Invaders', 'Pac-Man')"
                 />
                 <Button
-                  onClick={generateGameCode}
+                  onClick={generateGame}
                   disabled={isLoading}
-                  className="mt-4 w-full"
+                  className="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white"
                 >
-                  {isLoading ? 'Generating...' : 'Generate Game'}
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Generating...
+                    </span>
+                  ) : (
+                    'Generate Game'
+                  )}
                 </Button>
                 {error && (
-                  <div className="text-red-500 mt-2 text-sm">
-                    {error}
+                  <div className="mt-4 p-4 bg-red-500 border border-red-600 rounded-md">
+                    <p className="text-white text-sm">{error}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Generated Game and Code Display */}
-          <div className="w-1/2 bg-white shadow-xl rounded-lg p-6">
-            <Card className="w-full h-full">
+          {/* Generated Game Display */}
+          <div className="w-full md:w-1/2 bg-gray-800 shadow-xl rounded-lg p-6">
+            <Card className="w-full h-full bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="text-blue-600" />
-                  Generated Game
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Play className="text-green-500" />
+                  Game Preview
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="border-4 border-green-500 rounded-md shadow-md p-4 min-h-[400px]">
+                <div className="border-4 border-gray-700 rounded-md shadow-md p-4 min-h-[400px] bg-gray-900">
                   {gameComponent || (
-                    <p className="text-gray-500 text-center">
-                      Generated game will appear here
-                    </p>
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <p className="text-center">
+                        Generated vintage game will appear here
+                      </p>
+                    </div>
                   )}
                 </div>
                 
-                {isGameGenerated && (
-                  <div className="flex space-x-2 mt-4">
+                {generatedCode && (
+                  <div className="flex flex-col space-y-2 mt-4">
                     <Button
-                      onClick={startGame}
-                      className="flex-1"
+                      onClick={copyCode}
+                      variant="outline"
+                      className="w-full border-gray-600 text-black hover:bg-gray-700 hover:text-white"
                     >
-                      <Star className="mr-2" /> Start Game
+                      Copy Game Code
                     </Button>
                   </div>
                 )}
-
-                <Textarea
-                  value={generatedCode}
-                  onChange={(e) => setGeneratedCode(e.target.value)}
-                  className="w-full h-[350px] font-mono text-sm bg-gray-50 border-2 border-blue-100 mt-4"
-                  placeholder="Generated code will appear here"
-                />
               </CardContent>
             </Card>
           </div>
@@ -217,31 +211,4 @@ export default function NewGamePage() {
       </div>
     </div>
   );
-}
-
-// Standard React error boundary
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="text-red-500 p-4 text-center">
-          Error rendering game component. Please check the generated code.
-        </div>
-      );
-    }
-    return this.props.children;
-  }
 }

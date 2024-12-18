@@ -1,306 +1,264 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TypeAnimation } from 'react-type-animation';
+import Link from 'next/link';
 
-const RetroAnimations = () => {
-  const [asteroids, setAsteroids] = useState([]);
+const VintageGamesLanding = () => {
+  const [activeGame, setActiveGame] = useState(null);
+  const [activeCollection, setActiveCollection] = useState(null);
 
-  useEffect(() => {
-    const generateAsteroids = () => {
-      return [...Array(20)].map(() => ({
-        id: Math.random(),
-        x: Math.random() * 100 + '%',
-        y: Math.random() * 100 + '%',
-        size: Math.random() * 50 + 10,
-        speed: Math.random() * 5 + 1,
-      }));
-    };
+  const gameLibrary = [
+    {
+      id: 'pong',
+      title: 'Pong',
+      description: 'The game that started a revolution',
+      difficulty: 'Easy',
+      era: '1972',
+      creator: 'Atari',
+      color: 'bg-green-900',
+      textColor: 'text-green-200',
+      fullDescription: 'Pong is the groundbreaking table tennis sports game that launched the video game industry. Created by Allan Alcorn for Atari, it became the first commercially successful video game, paving the way for the entire gaming ecosystem we know today.',
+      mechanics: ['Simple 2D paddle control', 'Basic physics simulation', 'Minimalist scoring']
+    },
+    {
+      id: 'tetris',
+      title: 'Tetris',
+      description: 'Blocks that changed everything',
+      difficulty: 'Medium',
+      era: '1984',
+      creator: 'Alexey Pajitnov',
+      color: 'bg-blue-900',
+      textColor: 'text-blue-200',
+      fullDescription: 'Tetris is a tile-matching puzzle game designed and programmed by Soviet software engineer Alexey Pajitnov. Its simple yet addictive gameplay has made it one of the most popular video games of all time.',
+      mechanics: ['Shape rotation', 'Rapid decision making', 'Spatial awareness']
+    },
+    {
+      id: 'snake',
+      title: 'Snake',
+      description: 'Grow or die',
+      difficulty: 'Hard',
+      era: '1976',
+      creator: 'Gremlin Industries',
+      color: 'bg-red-900',
+      textColor: 'text-red-200',
+      fullDescription: 'The classic Snake game challenges players to control a growing snake, navigating it to eat food while avoiding collisions with walls and its own body. A test of reflexes and strategic planning.',
+      mechanics: ['Directional movement', 'Growing length', 'Increasing difficulty']
+    }
+  ];
 
-    setAsteroids(generateAsteroids());
-  }, []);
+  const gameCollections = [
+    {
+      id: 'arcade',
+      title: 'Arcade Classics',
+      description: 'The ultimate collection of coin-op legends',
+      games: ['Pac-Man', 'Space Invaders', 'Donkey Kong'],
+      image: '/arcade-collection.jpg'
+    },
+    {
+      id: 'console',
+      title: 'Console Legends',
+      description: 'Iconic games that defined home gaming',
+      games: ['Super Mario', 'Zelda', 'Sonic'],
+      image: '/console-collection.jpg'
+    },
+    {
+      id: 'handheld',
+      title: 'Portable Nostalgia',
+      description: 'Pocket-sized gaming memories',
+      games: ['Tetris GB', 'Pokemon Red', 'Mario Land'],
+      image: '/handheld-collection.jpg'
+    }
+  ];
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {asteroids.map((asteroid) => (
-        <motion.div
-          key={asteroid.id}
-          className="absolute bg-gray-600 rounded-full pixel-border"
-          style={{
-            width: `${asteroid.size}px`,
-            height: `${asteroid.size}px`,
-            left: asteroid.x,
-            top: asteroid.y,
-          }}
-          animate={{ y: '150%', opacity: [1, 0] }}
-          transition={{
-            duration: asteroid.speed,
-            repeat: Infinity,
-          }}
-        />
-      ))}
+    <div className="bg-black text-white font-mono">
+      {/* Scanline and Background Effects */}
+      <div className="fixed inset-0 pointer-events-none z-50">
+        <div className="absolute inset-0 bg-black opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:1px_1px]"></div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="relative min-h-screen flex items-center justify-center text-center px-4 py-24">
+        <div className="max-w-4xl">
+          <motion.h1 
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-6xl md:text-8xl font-bold mb-6 tracking-wider uppercase"
+          >
+            Vintage Games <span className="text-gray-500 animate-in">GPT</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto"
+          >
+            Celebrating the golden age of gaming - where every pixel tells a story, and every game is a time machine
+          </motion.p>
+          <Link href="/dashboard">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="bg-white text-black px-10 py-4 text-xl font-bold rounded-lg shadow-lg hover:bg-gray-200 transition-all"
+          >
+            Explore Gaming History
+          </motion.button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Game Library Section */}
+      <section className="container mx-auto px-4 py-24">
+        <h2 className="text-5xl text-center mb-16 font-bold">Legendary Games</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {gameLibrary.map((game) => (
+            <motion.div
+              key={game.id}
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`
+                ${game.color} 
+                ${activeGame === game.id ? 'scale-105' : ''}
+                border-4 border-white/10 
+                p-6 rounded-xl 
+                transform transition-all duration-300 
+                hover:border-white/30 
+                cursor-pointer
+              `}
+              onClick={() => setActiveGame(game.id === activeGame ? null : game.id)}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-3xl font-bold ${game.textColor}`}>
+                  {game.title}
+                </h3>
+                <span className="text-xl text-gray-400">{game.era}</span>
+              </div>
+              <p className="text-gray-300 mb-4">{game.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="px-3 py-1 bg-black/30 rounded">
+                  Difficulty: {game.difficulty}
+                </span>
+                
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="px-4 py-2 bg-white text-black font-bold rounded hover:bg-gray-200"
+                >
+                  About
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Expanded Game Details */}
+        {activeGame && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            transition={{ duration: 0.3 }}
+            className="mt-12 bg-gray-900 p-8 rounded-xl"
+          >
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-4xl font-bold mb-4">
+                  {gameLibrary.find(g => g.id === activeGame).title}
+                </h4>
+                <p className="text-gray-300 mb-4">
+                  {gameLibrary.find(g => g.id === activeGame).fullDescription}
+                </p>
+                <div>
+                  <h5 className="text-2xl mb-2">Game Mechanics</h5>
+                  <ul className="list-disc pl-5 text-gray-400">
+                    {gameLibrary.find(g => g.id === activeGame).mechanics.map((mechanic, index) => (
+                      <li key={index}>{mechanic}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div>
+                <h5 className="text-2xl mb-4">Historical Context</h5>
+                <div className="bg-black/30 p-4 rounded">
+                  <p>Creator: {gameLibrary.find(g => g.id === activeGame).creator}</p>
+                  <p>Release Year: {gameLibrary.find(g => g.id === activeGame).era}</p>
+                  <p>Impact: Revolutionary for its time</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </section>
+
+      {/* Game Collections Section */}
+      <section className="container mx-auto px-4 py-24 bg-gray-900">
+        <h2 className="text-5xl text-center mb-16 font-bold">Curated Collections</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {gameCollections.map((collection) => (
+            <motion.div
+              key={collection.id}
+              whileHover={{ scale: 1.05 }}
+              className={`
+                bg-black border-4 border-gray-800 rounded-xl overflow-hidden
+                ${activeCollection === collection.id ? 'border-white' : ''}
+              `}
+              onClick={() => setActiveCollection(
+                collection.id === activeCollection ? null : collection.id
+              )}
+            >
+              <div className="aspect-video overflow-hidden">
+                <img 
+                  src={collection.image} 
+                  alt={collection.title} 
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-3xl font-bold mb-2">{collection.title}</h3>
+                <p className="text-gray-400 mb-4">{collection.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {collection.games.map((game) => (
+                    <span 
+                      key={game} 
+                      className="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm"
+                    >
+                      {game}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Preservation Mission Section */}
+      <section className="container mx-auto px-4 py-24 text-center">
+        <h2 className="text-5xl font-bold mb-12">Our Mission</h2>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-xl text-gray-400 mb-8">
+            We're not just a gaming platform. We're digital archaeologists, preserving the 
+            rich history of interactive entertainment. Every game is a time capsule, 
+            every pixel a piece of cultural heritage.
+          </p>
+          <Link href="/dashboard">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="bg-white text-black px-10 py-4 text-xl font-bold rounded-lg shadow-lg hover:bg-gray-200 transition-all"
+          >
+            Join Our Preservation Effort
+          </motion.button>
+          </Link>
+        </div>
+      </section>
+
+     
     </div>
   );
 };
 
-export default function VintageLandingPage() {
-  const features = [
-    {
-      title: 'Timeless Design',
-      description: 'Experience the simplicity of classic black-and-white gaming.',
-      icon: '🎮',
-    },
-    {
-      title: 'Monochrome Graphics',
-      description: 'Minimalist visuals that captivate and inspire nostalgia.',
-      icon: '🖤',
-    },
-    {
-      title: 'Retro Animations',
-      description: 'Dynamic movement inspired by vintage arcade aesthetics.',
-      icon: '⬛',
-    },
-  ];
-
-  const games = [
-    {
-      title: 'Ping Pong',
-      description: 'Relive the first-ever arcade game with vintage-style paddle fun.',
-      image: '/pingpong.png', // Replace with your image URL
-      link: '/dashboard/games/pingpong',
-    },
-    {
-      title: 'Tetris',
-      description: 'Enjoy the classic tile-matching puzzle that defined a generation.',
-      image: '/tetris.png', // Replace with your image URL
-      link: '/dashboard/games/tetris',
-    },
-    {
-      title: 'Snake',
-      description: 'Guide the snake to eat food and grow, but don’t crash!',
-      image: '/snake.png', // Replace with your image URL
-      link: '/dashboard/games/snake',
-    },
-  ];
-
-  const pricingPlans = [
-    {
-      title: 'Classic Player',
-      price: '$4.99',
-      features: ['Access to 5 Games', 'Monochrome Themes', 'Standard Support'],
-    },
-    {
-      title: 'Arcade Hero',
-      price: '$14.99',
-      features: [
-        'Access to 20+ Games',
-        'Custom Themes',
-        'Priority Support',
-        'Exclusive Pixel Art Avatars',
-      ],
-      recommended: true,
-    },
-    {
-      title: 'Game Master',
-      price: 'Contact Us',
-      features: [
-        'Unlimited Games',
-        'Game Modding Tools',
-        'Dedicated Support',
-        'Custom Arcade Machines',
-      ],
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: 'John Doe',
-      quote: 'This platform took me back to the golden age of gaming. A must-try!',
-      avatar: '🕹️',
-    },
-    {
-      name: 'Jane Smith',
-      quote: 'The monochrome design is stunning. It feels like the 80s all over again!',
-      avatar: '👾',
-    },
-    {
-      name: 'Mike Retro',
-      quote: 'Vintage Games Studio perfectly blends nostalgia with modern fun.',
-      avatar: '🎲',
-    },
-  ];
-
-
-  return (
-    <div className="relative min-h-screen bg-black text-white font-mono overflow-hidden">
-      <RetroAnimations />
-      <div className="relative z-10 container mx-auto px-6 py-20">
-        {/* Header Section */}
-        <header className="text-center mb-16">
-          <h1 className="text-6xl font-bold pixel-text mb-4 text-gray-200">
-            Vintage Games Studio
-          </h1>
-          <TypeAnimation
-            sequence={[
-              'Monochrome Magic Awaits!',
-              2000,
-              'Relive the Retro Era!',
-              2000,
-              'Create Timeless Games!',
-              2000,
-            ]}
-            wrapper="span"
-            speed={40}
-            repeat={Infinity}
-            className="text-xl block text-gray-400"
-          />
-          <p className="text-gray-400 text-lg mt-4 max-w-2xl mx-auto">
-            A minimalist platform bringing black-and-white vintage games back to life.
-          </p>
-          <Link href="/dashboard">
-            <motion.button
-              className="mt-6 px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-full"
-              whileHover={{ scale: 1.1 }}
-            >
-              Play Now!
-            </motion.button>
-          </Link>
-        </header>
-
-        {/* Features Section */}
-        <section className="mb-16 bg-gray-800 px-6 py-12 rounded-xl">
-          <h2 className="text-4xl text-center pixel-text text-gray-300 mb-8">
-            Features
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                className="p-4 bg-gray-900 border-2 border-gray-600 rounded-lg text-center"
-                whileHover={{ scale: 1.05, rotate: 2 }}
-              >
-                <div className="text-5xl mb-4">{feature.icon}</div>
-                <h3 className="text-2xl font-bold mb-3 pixel-text text-gray-200">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-400">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Games Section */}
-        <section className="mb-16">
-          <h2 className="text-4xl text-center pixel-text text-gray-300 mb-8">
-            Featured Games
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {games.map((game, index) => (
-              <motion.div
-                key={index}
-                className="p-6 bg-gray-900 border-2 border-gray-600 rounded-lg"
-                whileHover={{ scale: 1.1 }}
-              >
-                <img
-                  src={game.image}
-                  alt={game.title}
-                  className="w-full h-40 object-cover rounded-lg mb-4"
-                />
-                <h3 className="text-2xl font-bold mb-2 text-gray-200 pixel-text">
-                  {game.title}
-                </h3>
-                <p className="text-gray-400 mb-4">{game.description}</p>
-                <Link href={game.link}>
-                  <motion.button
-                    className="bg-gray-700 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-600"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    Play {game.title}
-                  </motion.button>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section className="mb-16">
-          <h2 className="text-4xl text-center pixel-text text-gray-300 mb-8">
-            Pricing Plans
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {pricingPlans.map((plan, index) => (
-              <motion.div
-                key={index}
-                className={`p-6 border-2 ${
-                  plan.recommended ? 'border-gray-400' : 'border-gray-600'
-                } bg-gray-900 text-center rounded-lg`}
-                whileHover={{ scale: 1.1 }}
-              >
-                <h3 className="text-2xl font-bold mb-2 text-gray-200 pixel-text">
-                  {plan.title}
-                </h3>
-                <div className="text-3xl font-bold mb-4 text-gray-400">
-                  {plan.price}
-                </div>
-                <ul className="mb-4 text-gray-400">
-                  {plan.features.map((feature, i) => (
-                    <li key={i}>✓ {feature}</li>
-                  ))}
-                </ul>
-                <button className="bg-gray-700 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-600">
-                  Choose Plan
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-
-        {/* Testimonials Section */}
-        <section className="mb-16 bg-gray-800 px-6 py-12 rounded-xl">
-          <h2 className="text-4xl text-center pixel-text text-gray-300 mb-8">
-            Testimonials
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                className="p-6 bg-gray-900 border-2 border-gray-600 rounded-lg text-center"
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="text-5xl mb-4">{testimonial.avatar}</div>
-                <blockquote className="italic text-gray-400 mb-4">
-                  "{testimonial.quote}"
-                </blockquote>
-                <p className="text-gray-300 font-bold">{testimonial.name}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Contact Us Section */}
-        <section className="mb-16">
-          <h2 className="text-4xl text-center pixel-text text-gray-300 mb-8">
-            Contact Us
-          </h2>
-          <p className="text-gray-400 text-center mb-4">
-            Have questions or want to collaborate? Reach out to us!
-          </p>
-          <div className="text-center">
-            <Link href="mailto:support@vintagearcadestudio.com">
-              <motion.button
-                className="px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-full"
-                whileHover={{ scale: 1.1 }}
-              >
-                Email Us
-              </motion.button>
-            </Link>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
+export default VintageGamesLanding;
